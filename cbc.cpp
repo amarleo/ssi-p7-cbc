@@ -171,11 +171,11 @@ void addRoundKey(uint8_t (*texto)[4], uint8_t *clave_expandida, int pos) {
         }
     }
 
-    std::cout << "\nR" << pos << "(Subclave = ";
+    //std::cout << "\nR" << pos << "(Subclave = ";
     for(int i = 0; i < 16; i++) {
-        printf("%02x", clave_expandida[pos * 16 + i]);
+        //printf("%02x", clave_expandida[pos * 16 + i]);
     }
-    std::cout << ") = ";
+    //std::cout << ") = ";
     for(int i = 0; i < 16; i++) {
         copia_texto[i] ^= clave_expandida[pos * 16 + i];
     }
@@ -188,7 +188,7 @@ void addRoundKey(uint8_t (*texto)[4], uint8_t *clave_expandida, int pos) {
     for(int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             
-            printf("%02x", texto[j][i]);
+            //printf("%02x", texto[j][i]);
         }
     }
 
@@ -260,7 +260,7 @@ void vectorToMatriz(uint8_t *v, uint8_t (*matriz)[4]) {
 
             matriz[j][i] = v[contador];
             contador++;
-            printf("%02x", matriz[i][j]);
+            //printf("%02x", matriz[i][j]);
         }
 
     }
@@ -271,47 +271,86 @@ void xorPlainText(uint8_t *v_texto, uint8_t *v_initialization, uint8_t *v_result
 
     for (int i = 0; i < 16; i++) {
         v_resultado[i] = v_texto[i] ^ v_initialization[i];
-        printf("%02x", v_resultado[i]);
-        std::cout << " ";
+        //printf("%02x", v_resultado[i]);
+        //std::cout << " ";
     }
 
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
 }
 
 int main(void) {
 
 
-    std::string clave = "000102030405060708090a0b0c0d0e0f";
-    std::string initialization_str = "00000000000000000000000000000000";
-    std::string texto_1 = "00112233445566778899aabbccddeeff";
-    std::string texto_2 = "00000000000000000000000000000000";
+    // std::string clave = "000102030405060708090a0b0c0d0e0f";
+    // std::string initialization_str = "00000000000000000000000000000000";
+    // std::string texto_1 = "00112233445566778899aabbccddeeff";
+    // std::string texto_2 = "00000000000000000000000000000000";
 
-    uint8_t matriz_clave[4][4] = {
-     { 0x00, 0x04, 0x08, 0x0c },
-     { 0x01, 0x05, 0x09, 0x0d },
-     { 0x02, 0x06, 0x0a, 0x0e },
-     { 0x03, 0x07, 0x0b, 0x0f }
-    };
+    std::string clave, initialization_str, texto_1, texto_2;
+
+    std::cout << "Introduzca la clave: ";
+    std::cin >> clave;
+    std::cout << "\nIntroduzxa el vector de inicialización: ";
+    std::cin >> initialization_str;
+    std::cout << "\nIntroduzca el Bloque de texto 1: ";
+    std::cin >> texto_1;
+    std::cout << "\nIntroduzca el Bloque de texto 2: ";
+    std::cin >> texto_2;
+
+    uint8_t matriz_clave[4][4];
     uint8_t matriz_xor[4][4];
 
     uint8_t clave_expandida[176];
     uint8_t v_xor[16];
     uint8_t v_initialization[16];
-    uint8_t v_text1[16];
+    uint8_t v_text1[16], v_text2[16];
     uint8_t v_clave[16];
 
     stringToVector(texto_1, v_text1);
     stringToVector(initialization_str, v_initialization);
     stringToVector(clave, v_clave);
-    //stringToInt(clave, matriz_clave);
-    
+    stringToInt(clave, matriz_clave);
     
     xorPlainText(v_text1, v_initialization, v_xor);
     vectorToMatriz(v_xor, matriz_xor);
 
     expansionClave(matriz_clave, clave_expandida);
     cifrado(matriz_xor, clave_expandida);
+
+    std::cout << "\nSalida:\n\tBloque 1 de Texto Cifrado: ";
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 4; j++) {
+            printf("%02x", matriz_xor[j][i]);
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    int contador = 0;
+    std::cout << "\tBloque 2 de Texto Cifrado: ";
+    for(int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++){
+            v_initialization[contador] = matriz_xor[j][i];
+            contador++; 
+        }
+    }
+
+    stringToVector(texto_2, v_text2);
+    xorPlainText(v_text2, v_initialization, v_xor);
+    vectorToMatriz(v_xor, matriz_xor);
+
+    expansionClave(matriz_clave, clave_expandida);
+    cifrado(matriz_xor, clave_expandida);
+
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 4; j++) {
+            printf("%02x", matriz_xor[j][i]);
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+
 
 
 
